@@ -311,7 +311,7 @@ func TestListenProvidersThrottleProviderConfigReload(t *testing.T) {
 		throttleDuration: 30 * time.Millisecond,
 	}
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		pvd.messages = append(pvd.messages, dynamic.Message{
 			ProviderName: "mock",
 			Configuration: &dynamic.Configuration{
@@ -323,7 +323,7 @@ func TestListenProvidersThrottleProviderConfigReload(t *testing.T) {
 		})
 	}
 
-	providerAggregator := aggregator.ProviderAggregator{}
+	providerAggregator := &aggregator.ProviderAggregator{}
 	err := providerAggregator.AddProvider(pvd)
 	assert.NoError(t, err)
 
@@ -345,7 +345,7 @@ func TestListenProvidersThrottleProviderConfigReload(t *testing.T) {
 	// To load 5 new configs it would require 150ms (5 configs * 30ms).
 	// In 100ms, we should only have time to load 3 configs.
 	assert.LessOrEqual(t, publishedConfigCount, 3, "config was applied too many times")
-	assert.Greater(t, publishedConfigCount, 0, "config was not applied at least once")
+	assert.Positive(t, publishedConfigCount, "config was not applied at least once")
 }
 
 func TestListenProvidersSkipsEmptyConfigs(t *testing.T) {
@@ -507,7 +507,7 @@ func TestListenProvidersIgnoreSameConfig(t *testing.T) {
 		},
 	}
 
-	providerAggregator := aggregator.ProviderAggregator{}
+	providerAggregator := &aggregator.ProviderAggregator{}
 	err := providerAggregator.AddProvider(pvd)
 	assert.NoError(t, err)
 
@@ -651,7 +651,7 @@ func TestListenProvidersIgnoreIntermediateConfigs(t *testing.T) {
 		},
 	}
 
-	providerAggregator := aggregator.ProviderAggregator{}
+	providerAggregator := &aggregator.ProviderAggregator{}
 	err := providerAggregator.AddProvider(pvd)
 	assert.NoError(t, err)
 
