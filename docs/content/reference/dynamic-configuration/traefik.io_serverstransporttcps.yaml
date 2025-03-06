@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.14.0
+    controller-gen.kubebuilder.io/version: v0.16.1
   name: serverstransporttcps.traefik.io
 spec:
   group: traefik.io
@@ -21,7 +21,7 @@ spec:
           ServersTransportTCP is the CRD implementation of a TCPServersTransport.
           If no tcpServersTransport is specified, a default one named default@internal will be used.
           The default@internal tcpServersTransport can be configured in the static configuration.
-          More info: https://doc.traefik.io/traefik/v3.0/routing/services/#serverstransport_3
+          More info: https://doc.traefik.io/traefik/v3.3/routing/services/#serverstransport_3
         properties:
           apiVersion:
             description: |-
@@ -53,6 +53,7 @@ spec:
                   the protocol and operating system. Network protocols or operating
                   systems that do not support keep-alives ignore this field. If negative,
                   keep-alive probes are disabled.
+                pattern: ^([0-9]+(ns|us|µs|ms|s|m|h)?)+$
                 x-kubernetes-int-or-string: true
               dialTimeout:
                 anyOf:
@@ -60,6 +61,7 @@ spec:
                 - type: string
                 description: DialTimeout is the amount of time to wait until a connection
                   to a backend server can be established.
+                pattern: ^([0-9]+(ns|us|µs|ms|s|m|h)?)+$
                 x-kubernetes-int-or-string: true
               terminationDelay:
                 anyOf:
@@ -68,6 +70,7 @@ spec:
                 description: TerminationDelay defines the delay to wait before fully
                   terminating the connection, after one connected peer has closed
                   its writing capability.
+                pattern: ^([0-9]+(ns|us|µs|ms|s|m|h)?)+$
                 x-kubernetes-int-or-string: true
               tls:
                 description: TLS defines the TLS configuration

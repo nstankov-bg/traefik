@@ -116,12 +116,8 @@ Each service has a load-balancer, even if there is only one server to forward tr
 #### Servers
 
 Servers declare a single instance of your program.
-The `url` option point to a specific instance.
 
-!!! info ""
-    Paths in the servers' `url` have no effect.
-    If you want the requests to be sent to a specific path on your servers,
-    configure your [`routers`](../routers/index.md) to use a corresponding [middleware](../../middlewares/overview.md) (e.g. the [AddPrefix](../../middlewares/http/addprefix.md) or [ReplacePath](../../middlewares/http/replacepath.md)) middlewares.
+The `url` option point to a specific instance.
 
 ??? example "A Service with One Server -- Using the [File Provider](../../providers/file.md)"
 
@@ -171,6 +167,34 @@ The `weight` option allows for weighted load balancing on the servers.
         [[http.services.my-service.loadBalancer.servers]]
           url = "http://private-ip-server-2/"
           weight = 1
+    ```
+
+The `preservePath` option allows to preserve the URL path.
+
+!!! info "Health Check"
+
+    When a [health check](#health-check) is configured for the server, the path is not preserved.
+
+??? example "A Service with One Server and PreservePath -- Using the [File Provider](../../providers/file.md)"
+
+    ```yaml tab="YAML"
+    ## Dynamic configuration
+    http:
+      services:
+        my-service:
+          loadBalancer:
+            servers:
+              - url: "http://private-ip-server-1/base"
+                preservePath: true
+    ```
+
+    ```toml tab="TOML"
+    ## Dynamic configuration
+    [http.services]
+      [http.services.my-service.loadBalancer]
+        [[http.services.my-service.loadBalancer.servers]]
+          url = "http://private-ip-server-1/base"
+          preservePath = true
     ```
 
 #### Load-balancing
@@ -231,6 +255,12 @@ On subsequent requests, to keep the session alive with the same server, the clie
 
     `SameSite` can be `none`, `lax`, `strict` or empty.
 
+!!! info "Domain"
+
+    The Domain attribute of a cookie specifies the domain for which the cookie is valid. 
+    
+    By setting the Domain attribute, the cookie can be shared across subdomains (for example, a cookie set for example.com would be accessible to www.example.com, api.example.com, etc.). This is particularly useful in cases where sticky sessions span multiple subdomains, ensuring that the session is maintained even when the client interacts with different parts of the infrastructure.
+
 ??? example "Adding Stickiness -- Using the [File Provider](../../providers/file.md)"
 
     ```yaml tab="YAML"
@@ -262,6 +292,7 @@ On subsequent requests, to keep the session alive with the same server, the clie
               cookie:
                 name: my_sticky_cookie_name
                 secure: true
+                domain: mysite.site
                 httpOnly: true
     ```
 
@@ -273,6 +304,7 @@ On subsequent requests, to keep the session alive with the same server, the clie
           name = "my_sticky_cookie_name"
           secure = true
           httpOnly = true
+          domain = "mysite.site"
           sameSite = "none"
     ```
 
@@ -784,7 +816,7 @@ spec:
 
 #### `peerCertURI`
 
-_Optional, Default=false_
+_Optional, Default=""_
 
 `peerCertURI` defines the URI used to match against SAN URIs during the server's certificate verification.
 
@@ -1207,6 +1239,7 @@ http:
 The mirroring is able to mirror requests sent to a service to other services.
 Please note that by default the whole request is buffered in memory while it is being mirrored.
 See the maxBodySize option in the example below for how to modify this behaviour.
+You can also omit the request body by setting the mirrorBody option to `false`.
 
 !!! info "Supported Providers"
 
@@ -1219,6 +1252,9 @@ http:
     mirrored-api:
       mirroring:
         service: appv1
+        # mirrorBody defines whether the request body should be mirrored.
+        # Default value is true.
+        mirrorBody: false
         # maxBodySize is the maximum size allowed for the body of the request.
         # If the body is larger, the request is not mirrored.
         # Default value is -1, which means unlimited size.
@@ -1248,6 +1284,9 @@ http:
       # If the body is larger, the request is not mirrored.
       # Default value is -1, which means unlimited size.
       maxBodySize = 1024
+      # mirrorBody defines whether the request body should be mirrored.
+      # Default value is true.
+      mirrorBody = false
     [[http.services.mirrored-api.mirroring.mirrors]]
       name = "appv2"
       percent = 10
